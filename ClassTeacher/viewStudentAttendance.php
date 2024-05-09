@@ -44,6 +44,44 @@ include '../Includes/session.php';
         xmlhttp.send();
     }
 }
+
+function lowAttendance(){
+  const myHeaders = new Headers();
+myHeaders.append("Authorization", "App 856928a45c2e59bdc0b6b925afd76339-45751347-fa9a-48b1-a1a0-b2aa5758c437");
+myHeaders.append("Content-Type", "application/json");
+myHeaders.append("Accept", "application/json");
+
+const raw = JSON.stringify({
+    "messages": [
+        {
+            "from": "447860099299",
+            "to": "918732908047",
+            "messageId": "8a837b2c-b2b5-4f4a-83c1-52fef5926c1c",
+            "content": {
+                "templateName": "message_test",
+                "templateData": {
+                    "body": {
+                        "placeholders": ["Sunny"]
+                    }
+                },
+                "language": "en"
+            }
+        }
+    ]
+});
+
+const requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: raw,
+    redirect: "follow"
+};
+
+fetch("https://3gynrv.api.infobip.com/whatsapp/1/message/template", requestOptions)
+    .then((response) => response.text())
+    .then((result) => console.log(result))
+    .catch((error) => console.error(error));
+}
 </script>
 
 </head>
@@ -216,19 +254,26 @@ include '../Includes/session.php';
         <td><a href='editAttendance.php?id=" . $rows['Id'] . "' target='_blank'>Edit</a></td> <!-- Edit link with target='_blank' -->
       </tr>";
       }
+    // Calculate attendance percentage outside the loop
+    $attendancePercentage = ($presentDays / $totalDays) * 100;
 
-      // Calculate attendance percentage outside the loop
-      $attendancePercentage = ($presentDays / $totalDays) * 100;
+    // Display a row with the combined attendance percentage
+    echo "
+    <tr>
+      <td colspan='3'></td>
+      <td>Combined Attendance Percentage</td>
+      <td></td>
+      <td>" . number_format($attendancePercentage, 2) . "%</td>
+      <td>";
 
-      // Display a row with the combined attendance percentage
-      echo "
-        <tr>
-          <td colspan='3'></td>
-          <td>Combined Attendance Percentage</td>
-          <td></td>
-          <td>" . number_format($attendancePercentage, 2) . "%</td>
-          <td></td> <!-- Placeholder for the extra column in the last row -->
-        </tr>";
+    // Add the conditional statement without opening a new PHP block
+    if ($attendancePercentage <= 75) {
+        echo "<button class='btn btn-primary' onclick='lowAttendance()'>Send Reminder</button>";
+    }
+
+    echo "
+      </td> <!-- Placeholder for the extra column in the last row -->
+    </tr>";
     } else {
       echo "<div class='alert alert-danger' role='alert'>No Record Found!</div>";
     }
