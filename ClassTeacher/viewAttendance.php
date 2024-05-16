@@ -40,6 +40,7 @@ if(isset($_POST['editAttendance'])) {
   <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
   <link href="css/ruang-admin.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
 </head>
 
 <body id="page-top">
@@ -88,11 +89,12 @@ if(isset($_POST['editAttendance'])) {
               <!-- Input Group -->
                  <div class="row">
               <div class="col-lg-6">
-              <div class="card mb-4" style="height: 930px; width: 700px; overflow-y: auto;">
+              <div class="card mb-4" style="height: 930px; width:1200px ">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                   <h6 class="m-0 font-weight-bold text-primary">Class Attendance</h6>
                 </div>
                 <div class="table-responsive p-3">
+                <form method="post">
                   <table class="table align-items-center table-flush table-hover" id="dataTableHover">
                     <thead class="thead-light">
                       <tr>
@@ -102,11 +104,9 @@ if(isset($_POST['editAttendance'])) {
                         <th>First Name</th>
                         <th>Last Name</th>
                        
-                        
-                        
-                        
                         <th>Status</th>
-                        <th>Date</th>
+                              <th>Date</th>
+                              <th>Edit Attendance</th>
                       </tr>
                     </thead>
                    
@@ -132,40 +132,50 @@ if(isset($_POST['editAttendance'])) {
                       $num = $rs->num_rows;
                       $sn=0;
                       $status="";
-                      if($num > 0)
-                      { 
-                        while ($rows = $rs->fetch_assoc())
-                          {
-                              if($rows['status'] == '1'){$status = "Present"; $colour="rgba(0, 255, 0, 0.6)";}else{$status = "Absent";$colour="rgba(255, 0, 0, 0.6)";}
-                             $sn = $sn + 1;
-                            echo"
-                              <tr>
-                                <td>".$sn."</td>
-                                <td>".$rows['enrollmentNo']."</td>
-                                 <td>".$rows['firstName']."</td>
-                                <td>".$rows['lastName']."</td>
-                                
-                                <td style='background-color:".$colour."'>".$status."</td>
-                                <td>".$rows['dateTimeTaken']."</td>
-                              </tr>";
+                      if($num > 0) { 
+                        while ($rows = $rs->fetch_assoc()) {
+                          if($rows['status'] == '1') {
+                            $status = "Present"; 
+                            $colour = "rgba(0, 255, 0, 0.6)";
+                            $checked = "checked"; // Checkbox initially checked if present
+                          } else {
+                            $status = "Absent";
+                            $colour = "rgba(255, 0, 0, 0.6)";
+                            $checked = ""; // Checkbox initially unchecked if absent
                           }
-                      }
-                      else
-                      {
-                           echo   
-                           "<div class='alert alert-danger' role='alert'>
-                            No Record Found!
-                            </div>";
+                          $sn = $sn + 1;
+                          echo "
+                          <tr>
+                            <td>".$sn."</td>
+                            <td>".$rows['enrollmentNo']."</td>
+                            <td>".$rows['firstName']."</td>
+                            <td>".$rows['lastName']."</td>
+                            <td style='background-color:".$colour."'>".$status."</td>
+                            <td>".$rows['dateTimeTaken']."</td>
+                            <td>
+                              <input type='hidden' name='attendance[".$rows['Id']."]' value='0'>
+                              <input type='checkbox' name='attendance[".$rows['Id']."]' value='1' ".$checked.">
+                            </td>
+                          </tr>";
+                        }
+                      } else {
+                        echo "<div class='alert alert-danger' role='alert'>No Record Found!</div>";
                       }
                     }
-                      ?>
+                    ?>
                     </tbody>
                   </table>
+                  <button type="submit" name="editAttendance" class="btn btn-primary">Edit Attendance</button>
+                      </form>
                 </div>
               </div>
             </div>
-            <div class="col-lg-6">
-              <div class="card mb-4">
+            
+            
+            </div>
+            
+            <div class="col-lg-6" style="display:flex;width: 1100px;">
+              <div class="card mb-4" style="display: inline-block; width: 48%; margin-right: 10px; margin-bottom: 10px;justify-content: center">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                   <h6 class="m-0 font-weight-bold text-primary">Attendance Summary</h6>
                 </div>
@@ -222,12 +232,12 @@ if(isset($_POST['editAttendance'])) {
                   <div id="attendanceSummary"></div>
                 </div>
               </div>
-              <div class="card mb-4">
+              <div class="card mb-4" style="display: inline-block;justify-content: center">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                   <h6 class="m-0 font-weight-bold text-primary">Individual Attendance</h6>
                 </div>
                 <div class="card-body">
-                  <canvas id="individualAttendanceChart" width="400" height="200"></canvas>
+                  <canvas id="individualAttendanceChart" width="400" height="400"></canvas>
                   <?php
                     if(isset($_POST['view'])){
                       $dateTaken = $_POST['dateTaken'];
@@ -264,7 +274,6 @@ if(isset($_POST['editAttendance'])) {
                   ?>
                 </div>
               </div>
-            </div>
             </div>
           </div>
           
